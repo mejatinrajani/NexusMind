@@ -2,7 +2,7 @@
 
 A sophisticated, multi-tenant GraphRAG (Graph Retrieval Augmented Generation) platform that combines vector-based semantic search with knowledge graph reasoning for advanced question-answering capabilities.
 
-## 🎯 Overview
+## Overview
 
 NexusMind is an intelligent document ingestion and retrieval system that leverages:
 
@@ -107,7 +107,7 @@ NexusMind/
 └── test_api.py                    # API testing utilities
 ```
 
-## 🔧 Configuration
+## Configuration
 
 ### Environment Variables
 
@@ -128,7 +128,7 @@ REASONING_LLM=llama-3.3-70b-versatile
 ROUTING_LLM=llama-3.1-8b-instant
 ```
 
-## 📚 API Endpoints
+## API Endpoints
 
 ### Chat Endpoints
 
@@ -157,7 +157,7 @@ ROUTING_LLM=llama-3.1-8b-instant
 
 Once the backend is running, visit `http://localhost:8000/docs` for interactive Swagger documentation.
 
-## 🏗️ Architecture
+## Architecture
 
 ### Data Flow
 
@@ -194,21 +194,21 @@ Once the backend is running, visit `http://localhost:8000/docs` for interactive 
 | **Styling** | Tailwind CSS | Responsive design |
 | **Document Parsing** | AWS Textract + PyPDF | Advanced OCR & PDF extraction |
 
-## 🔐 Security
+## Security
 
 - CORS enabled for frontend-backend communication
 - Environment variables for sensitive credentials
 - Input validation using Pydantic models
 - SQLite database for isolated data per chatbot
 
-## 📊 Performance Considerations
+## Performance Considerations
 
 - **Async Processing**: Background workers prevent blocking on large document uploads
 - **Batch Operations**: Bulk vector insertion for efficiency
 - **Connection Pooling**: Neo4j connection pool for database scaling
 - **Local Inference**: Sentence-transformers for embeddings without API calls
 
-## 🧪 Testing
+## Testing
 
 Run the test API utilities:
 
@@ -222,7 +222,7 @@ Verify database connections:
 python initialize_db.py
 ```
 
-## 🛣️ Roadmap
+## Roadmap
 
 - [ ] Multi-language support
 - [ ] Fine-tuned domain-specific models
@@ -231,18 +231,18 @@ python initialize_db.py
 - [ ] User authentication & authorization
 - [ ] Deployment guides (Docker, Azure)
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see [LICENSE](LICENSE) file for details.
 
-## 👤 Author
+## Author
 
 **Jatin Rajani**
 
 - GitHub: [@mejatinrajani](https://github.com/mejatinrajani)
 - Project: [NexusMind](https://github.com/mejatinrajani/NexusMind)
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [LangChain](https://langchain.com) - Framework for LLM applications
 - [Groq](https://groq.com) - Fast LLM inference
@@ -251,11 +251,11 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) file for
 - [FastAPI](https://fastapi.tiangolo.com) - Modern web framework
 - [React](https://react.dev) - UI library
 
-## 💬 Support
+## Support
 
 For issues, feature requests, or questions:
 - Open an issue on [GitHub](https://github.com/mejatinrajani/NexusMind/issues)
-- Contact: jatin.rajani@example.com
+- Contact: mejatinrajani.tech@gmail.com
 
 ---
 
