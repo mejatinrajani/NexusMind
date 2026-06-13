@@ -1,6 +1,6 @@
 # NexusMind: Agentic GraphRAG Platform
 
-A sophisticated, multi-tenant GraphRAG (Graph Retrieval Augmented Generation) platform that combines vector-based semantic search with knowledge graph reasoning for advanced question-answering capabilities.
+A sophisticated, multi-tenant GraphRAG (Graph Retrieval Augmented Generation) platform that combines vector-based semantic search with knowledge graph reasoning for advanced question-answering capabilities. It lets users to build their own vector cum graph RAG with no code, a master system prompt and a customized name.
 
 ## Overview
 
