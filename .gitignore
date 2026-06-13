@@ -1,0 +1,218 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# IDE and Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+*.sublime-project
+*.sublime-workspace
+.editorconfig
+
+# npm
+node_modules/
+package-lock.json
+yarn.lock
+
+# dist build
+frontend/dist/
+
+# Vite
+frontend/.vite/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Chroma database
+app/database/chroma/
+
+# Temporary files
+temp_uploads/
+*.tmp
+*.temp
+*.bak
+
+# OS specific
+.DS_Store
+Thumbs.db
+.windows-build-tools
+
+# Project specific
+.env.local
+.env.*.local
+secrets/
+private/
+
+# Documentation generated files
+docs/_build/
+site/
+
+# Temporary build files
+build/
+dist/
+*.egg-info/
+
+# Development dependencies
+.vscode-server/
+
+# AWS credentials (never commit!)
+.aws/
+aws_credentials.txt
+credentials.json
+
+# Azure specific
+.azure/
+local.settings.json
+
+# Neo4j dumps
+neo4j-backups/
+neo4j-import/
+
+# Model cache
+.cache/
+models/
+
+# Logs
+logs/
+*.log
+
+# OS
+.env.local
+.env.production.local
+.env.development.local
+.env.test.local
+
+# GitHub Actions
+.github/workflows/secrets
+
+# Poetry
+poetry.lock
+
+# Pre-commit
+.pre-commit-config.yaml

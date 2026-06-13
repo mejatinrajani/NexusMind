@@ -1,0 +1,27 @@
+# --- Core Framework & Orchestration ---
+langgraph>=0.0.30
+langchain>=0.1.16
+langchain-core>=0.1.42
+langchain-community>=0.0.32
+
+# --- Model & Inference Providers ---
+langchain-groq>=0.1.2
+langchain-huggingface>=0.0.1
+sentence-transformers>=2.6.1
+torch>=2.2.2 --extra-index-url https://download.pytorch.org/whl/cpu
+
+# --- Database Drivers & Storage ---
+chromadb>=0.4.24
+neo4j>=5.19.0
+
+# --- Web Framework & API Layer ---
+fastapi>=0.111.0
+uvicorn>=0.29.0
+
+# --- Utilities & Parsing ---
+pydantic>=2.7.0
+pydantic-settings>=2.2.1
+python-dotenv>=1.0.1
+pypdf>=4.2.0
+docx2txt>=0.8
+duckduckgo-search>=5.3.0
