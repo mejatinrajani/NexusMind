@@ -13,7 +13,7 @@ NexusMind is an intelligent document ingestion and retrieval system that leverag
 - **FastAPI Backend**: High-performance REST API with async support
 - **React Frontend**: Modern, responsive user interface
 
-## ✨ Key Features
+## Key Features
 
 - **Multi-Tenant Architecture**: Isolated chatbot instances with dedicated knowledge bases
 - **Hybrid Retrieval**: Combines vector search, graph traversal, and web search
@@ -23,7 +23,7 @@ NexusMind is an intelligent document ingestion and retrieval system that leverag
 - **Real-time Reasoning**: Live demonstration of reasoning paths and knowledge retrieval
 - **Cloud-Scale OCR**: AWS Textract integration for advanced document parsing
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -74,7 +74,7 @@ NexusMind is an intelligent document ingestion and retrieval system that leverag
    ```
    Frontend runs on: `http://localhost:5173`
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 NexusMind/
