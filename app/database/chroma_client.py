@@ -3,6 +3,7 @@ from typing import List, Dict, Any, Optional
 import chromadb
 from chromadb.config import Settings as ChromaSettings
 from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
 from app.config import settings
 from app.logger import setup_logger
 
@@ -37,11 +38,11 @@ class ChromaManager:
                 settings=ChromaSettings(anonymized_telemetry=False)
             )
             
-            logger.info(f"Loading local embedding model into memory: {settings.EMBEDDING_MODEL_NAME}")
-            # Load HuggingFace embeddings locally in CPU/RAM memory space
-            self.embedding_function = HuggingFaceEmbeddings(
-                model_name=settings.EMBEDDING_MODEL_NAME,
-                model_kwargs={"device": "cpu"}
+            # Replace your self.embedding_function inside the __init__ with this:
+            logger.info("Connecting to HuggingFace Cloud Embeddings...")
+            self.embedding_function = HuggingFaceInferenceAPIEmbeddings(
+                api_key=settings.HUGGINGFACEHUB_API_TOKEN,
+                model_name="sentence-transformers/all-MiniLM-L6-v2"
             )
             
             self._write_lock = threading.Lock()
