@@ -29,10 +29,11 @@ class ChromaManager:
             return
             
         try:
-            logger.info(f"Initializing persistent local ChromaDB client at: {settings.CHROMA_PERSIST_DIR}")
-            # Instantiate native persistent disk client targeting our data path
+            chroma_path = settings.DATA_DIR / "chroma"
+            logger.info(f"Initializing persistent local ChromaDB client at: {chroma_path}")
+            # Instantiate native persistent disk client targeting our centralized data path
             self.client = chromadb.PersistentClient(
-                path=str(settings.CHROMA_PERSIST_DIR),
+                path=str(chroma_path),
                 settings=ChromaSettings(anonymized_telemetry=False)
             )
             
