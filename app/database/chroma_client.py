@@ -2,7 +2,6 @@ import threading
 from typing import List, Dict, Any, Optional
 import chromadb
 from chromadb.config import Settings as ChromaSettings
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
 from app.config import settings
 from app.logger import setup_logger
