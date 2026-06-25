@@ -18,7 +18,7 @@ export default function App() {
   // GLOBAL SYNC STATE
   const [isSyncing, setIsSyncing] = useState(false);
 
-  const BACKEND_URL = 'http://127.0.0.1:8000/api/v1';
+  const BACKEND_URL = 'https://nexusmind-zcn5.onrender.com/api/v1';
   const currentBot = bots.find(b => b.id === activeBotId) || bots[0];
 
   // GLOBAL POLLING LOOP: Checks bot status even if user switches tabs
