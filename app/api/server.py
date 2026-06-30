@@ -21,6 +21,9 @@ app = FastAPI(
     description="Multi-tenant backend for hybrid vector-graph reasoning.",
     version="1.0.0"
 )
+@app.get("/") #just for checking 
+async def root():
+    return {"status": "ok", "message": "NexusMind Backend is Live"}
 # Create SQLite tables on server startup
 init_db()
 # Allow Cross-Origin requests for the frontend
