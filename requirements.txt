@@ -14,7 +14,7 @@ langchain-core
 langchain-groq
 langgraph
 langchain-text-splitters
-
+langchain-huggingface
 # Cloud Embeddings
 langchain-community
 

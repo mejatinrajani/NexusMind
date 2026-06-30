@@ -1,8 +1,9 @@
+import os
 import threading
 from typing import List, Dict, Any, Optional
 import chromadb
 from chromadb.config import Settings as ChromaSettings
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceInferenceAPIEmbeddings
 from app.config import settings
 from app.logger import setup_logger
 
@@ -31,29 +32,34 @@ class ChromaManager:
         try:
             chroma_path = settings.DATA_DIR / "chroma"
             logger.info(f"Initializing persistent local ChromaDB client at: {chroma_path}")
-            # Instantiate native persistent disk client targeting our centralized data path
+            
+            # Instantiate native persistent disk client
             self.client = chromadb.PersistentClient(
                 path=str(chroma_path),
                 settings=ChromaSettings(anonymized_telemetry=False)
             )
             
-            logger.info(f"Loading local embedding model into memory: {settings.EMBEDDING_MODEL_NAME}")
-            # Load HuggingFace embeddings locally in CPU/RAM memory space (Offline Mode)
-            self.embedding_function = HuggingFaceEmbeddings(
-                model_name=settings.EMBEDDING_MODEL_NAME,
-                model_kwargs={"device": "cpu"}
+            logger.info("Connecting to Hugging Face Serverless Inference API...")
+            hf_token = os.environ.get("HUGGINGFACEHUB_API_TOKEN")
+            
+            if not hf_token:
+                logger.warning("HUGGINGFACEHUB_API_TOKEN is missing! Embeddings will fail.")
+            
+            # Initialize API Embeddings once (Zero RAM usage on Render)
+            self.embedding_function = HuggingFaceInferenceAPIEmbeddings(
+                api_key=hf_token,
+                model_name="sentence-transformers/all-MiniLM-L6-v2"
             )
             
             self._write_lock = threading.Lock()
             self._initialized = True
             logger.info("ChromaManager storage subsystem initialized successfully.")
         except Exception as e:
-            logger.critical(f"Failed to initialize local ChromaDB vector engine: {str(e)}", exc_info=True)
+            logger.critical(f"Failed to initialize ChromaDB vector engine: {str(e)}", exc_info=True)
             raise e
 
     def _get_clean_collection_name(self, chatbot_id: str) -> str:
         """Normalizes user-provided chatbot names to comply with strict ChromaDB naming constraints."""
-        # Chroma names must be 3-63 chars, alphanumeric/underscore/hyphen, no double periods
         clean_name = "".join(c if c.isalnum() or c in ["-", "_"] else "_" for c in chatbot_id).lower()
         if len(clean_name) < 3:
             clean_name = f"bot_{clean_name}"
@@ -73,7 +79,6 @@ class ChromaManager:
     def add_documents(self, chatbot_id: str, texts: List[str], metadatas: List[Dict[str, Any]], ids: List[str]) -> bool:
         """
         Embeds and indexes document chunks securely into a specific chatbot's workspace.
-        Uses a synchronization lock to prevent SQLite database lock collisions on write operations.
         """
         if not texts:
             return False
@@ -81,14 +86,16 @@ class ChromaManager:
         collection = self.get_or_create_collection(chatbot_id)
         
         try:
-            logger.info(f"Generating local semantic embeddings for {len(texts)} chunks for chatbot: {chatbot_id}")
-            # Compute embeddings using the in-memory Hugging Face pipeline
-            embeddings = self.embedding_function.embed_documents(texts)
+            logger.info(f"Generating semantic embeddings via API for {len(texts)} chunks for chatbot: {chatbot_id}")
+            
+            # Compute embeddings FIRST using the LangChain wrapper
+            embeddings_list = self.embedding_function.embed_documents(texts)
             
             with self._write_lock:
+                # Pass the raw list of vectors to Chroma
                 collection.add(
                     documents=texts,
-                    embeddings=embeddings,
+                    embeddings=embeddings_list,
                     metadatas=metadatas,
                     ids=ids
                 )
@@ -104,13 +111,13 @@ class ChromaManager:
         """
         collection_name = self._get_clean_collection_name(chatbot_id)
         try:
-            # Check existence first to prevent empty retrieval crashes
             collection = self.client.get_collection(name=collection_name)
         except Exception:
             logger.warning(f"Vector space collection '{collection_name}' query issued before any document ingestion occurred.")
             return []
 
         try:
+            # Generate the vector for the user's search query
             query_embedding = self.embedding_function.embed_query(query)
             
             results = collection.query(
@@ -119,12 +126,12 @@ class ChromaManager:
             )
             
             formatted_results = []
-            if results and results["documents"] and results["documents"][0]:
+            if results and results.get("documents") and results["documents"][0]:
                 for idx in range(len(results["documents"][0])):
                     formatted_results.append({
                         "content": results["documents"][0][idx],
-                        "metadata": results["metadatas"][0][idx] if results["metadatas"] else {},
-                        "distance": results["distances"][0][idx] if results["distances"] else 0.0
+                        "metadata": results["metadatas"][0][idx] if results.get("metadatas") else {},
+                        "distance": results["distances"][0][idx] if results.get("distances") else 0.0
                     })
             
             logger.info(f"Vector search returned {len(formatted_results)} matches from namespace: {collection_name}")
