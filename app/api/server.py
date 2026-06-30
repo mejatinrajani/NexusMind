@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from app.database.sql_client import init_db, create_or_update_bot
 from app.config import settings
 from app.logger import setup_logger
+import logging
 from app.ingestion.parser import UniversalParser
 from app.ingestion.extractor import GraphExtractor
 from app.database.chroma_client import ChromaManager
@@ -34,6 +35,16 @@ load_dotenv()
 # In-memory tracker for background extraction tasks
 active_sync_tasks = set()
 # --- Pydantic Data Models for the API ---
+
+class EndpointFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        # Ignore any access log that contains "/status" in the request line
+        return "/status" not in record.getMessage()
+
+# Attach the filter to Uvicorn's access logger
+logging.getLogger("uvicorn.access").addFilter(EndpointFilter())
+
+
 class ChatRequest(BaseModel):
     chatbot_id: str
     question: str

@@ -2,6 +2,7 @@ import json
 from typing import List, Dict, Any
 from langchain_core.tools import tool
 from duckduckgo_search import DDGS
+from neo4j.exceptions import ServiceUnavailable, AuthError  # Added for graceful degradation
 from app.database.chroma_client import ChromaManager
 from app.database.neo4j_client import Neo4jManager
 from app.logger import setup_logger
@@ -44,7 +45,7 @@ def vector_search_tool(query: str, chatbot_id: str) -> str:
 def graph_search_tool(entities: List[str], chatbot_id: str) -> str:
     """
     Traverses the Neo4j Knowledge Graph to find structural relationships and multi-hop connections.
-    Use this tool when the query asks about systemic impacts, connections between concepts, or hierarchical data.
+    Features automatic fault-tolerance: falls back to Vector DB if Graph is offline.
     
     Args:
         entities: A list of core noun entities extracted from the user's query (e.g., ["HR Policy", "John Doe"]).
@@ -55,8 +56,6 @@ def graph_search_tool(entities: List[str], chatbot_id: str) -> str:
     if not entities:
         return "No entities provided for graph traversal."
 
-    neo4j_mgr = Neo4jManager()
-    
     # Cypher query: Match nodes by approximate name (case-insensitive) within the tenant boundary, 
     # and return their direct relationships (1-hop neighborhood).
     cypher_query = """
@@ -69,6 +68,7 @@ def graph_search_tool(entities: List[str], chatbot_id: str) -> str:
     """
     
     try:
+        neo4j_mgr = Neo4jManager()
         results = neo4j_mgr.execute_read(cypher_query, {"entities": entities, "chatbot_id": chatbot_id})
         
         if not results:
@@ -79,6 +79,35 @@ def graph_search_tool(entities: List[str], chatbot_id: str) -> str:
             formatted_graph += f"({record['source']}) --[{record['relationship']}]--> ({record['target']})\n"
             
         return formatted_graph
+
+    except (ServiceUnavailable, AuthError) as e:
+        logger.warning(f"Neo4j Knowledge Graph is offline or unreachable: {str(e)}. Initiating Vector Fallback!")
+        
+        # ==========================================
+        # 🚀 THE GRACEFUL DEGRADATION FALLBACK
+        # ==========================================
+        try:
+            chroma_mgr = ChromaManager()
+            # Combine the isolated entities into a single string for semantic vector search
+            fallback_query = " ".join(entities)
+            vector_results = chroma_mgr.similarity_search(chatbot_id, fallback_query, limit=3)
+            
+            if not vector_results:
+                return "Graph database is offline. Vector fallback was triggered but found no matching documents."
+                
+            # Format the vector results nicely for the LLM
+            formatted_fallback = "--- Vector Semantic Matches (Fallback) ---\n"
+            for res in vector_results:
+                source = res.get("metadata", {}).get("source", "Unknown Document")
+                formatted_fallback += f"[Source: {source}]\n{res['content']}\n\n"
+            
+            logger.info("Vector fallback successfully retrieved data.")
+            return f"[SYSTEM NOTE: The Graph Database is currently offline. Providing semantic vector search results instead.]\n\n{formatted_fallback}"
+            
+        except Exception as vector_e:
+            logger.error(f"Catastrophic failure: Vector fallback also crashed: {str(vector_e)}")
+            return "Error: Both the Graph and Vector databases are currently unavailable. Cannot retrieve context."
+            
     except Exception as e:
         logger.error(f"Graph search tool execution failed: {str(e)}")
         return "Error executing knowledge graph traversal."

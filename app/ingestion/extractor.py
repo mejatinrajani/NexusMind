@@ -36,23 +36,35 @@ class GraphExtractor:
             ("human", "Extract from this text chunk:\n\n{text_chunk}")
         ])
 
-    def _extract_from_llm(self, text_chunk: str) -> Dict[str, List[Dict[str, Any]]]:
-        """Invokes Groq LLM to perform structured entity-relation extraction."""
-        try:
-            chain = self.extraction_prompt | self.llm
-            response = chain.invoke({"text_chunk": text_chunk})
-            
-            # Clean up the output to safeguard against accidental markdown block wrappers
-            raw_content = response.content.strip()
-            if raw_content.startswith("```json"):
-                raw_content = raw_content.split("```json")[1].split("```")[0].strip()
-            elif raw_content.startswith("```"):
-                raw_content = raw_content.split("```")[1].split("```")[0].strip()
+    def _extract_from_llm(self, text_chunk: str, max_retries: int = 3) -> Dict[str, List[Dict[str, Any]]]:
+        """Invokes Groq LLM to perform structured entity-relation extraction with self-healing retry logic."""
+        
+        # Force the Groq API to return strictly valid JSON
+        llm_with_json = self.llm.bind(response_format={"type": "json_object"})
+        chain = self.extraction_prompt | llm_with_json
 
-            return json.loads(raw_content)
-        except Exception as e:
-            logger.error(f"LLM extraction step failed on text chunk: {str(e)}")
-            return {"entities": [], "relationships": []}
+        for attempt in range(max_retries):
+            try:
+                response = chain.invoke({"text_chunk": text_chunk})
+                
+                # Clean up the output to safeguard against accidental markdown block wrappers
+                raw_content = response.content.strip()
+                if raw_content.startswith("```json"):
+                    raw_content = raw_content.split("```json")[1].split("```")[0].strip()
+                elif raw_content.startswith("```"):
+                    raw_content = raw_content.split("```")[1].split("```")[0].strip()
+
+                return json.loads(raw_content)
+
+            except json.JSONDecodeError as e:
+                logger.warning(f"JSON parsing failed on attempt {attempt + 1}/{max_retries}. Error: {e}")
+                if attempt == max_retries - 1:
+                    logger.error(f"LLM extraction completely failed after {max_retries} attempts. Bypassing chunk.")
+                    return {"entities": [], "relationships": []}
+            except Exception as e:
+                logger.error(f"Unexpected LLM extraction error on attempt {attempt + 1}: {str(e)}")
+                if attempt == max_retries - 1:
+                    return {"entities": [], "relationships": []}
 
     def write_chunk_to_graph(self, chatbot_id: str, chunk_data: Dict[str, Any]) -> bool:
         """
@@ -61,7 +73,7 @@ class GraphExtractor:
         text_content = chunk_data["text"]
         metadata = chunk_data["metadata"]
         
-        # 1. Run LLM Extraction
+        # 1. Run LLM Extraction (Now features internal retries)
         graph_data = self._extract_from_llm(text_content)
         
         entities = graph_data.get("entities", [])

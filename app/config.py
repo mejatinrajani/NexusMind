@@ -21,6 +21,9 @@ class Settings(BaseSettings):
 
     # --- Security & Core API Keys ---
     GROQ_API_KEY: str = Field(..., description="Groq API key required for LLM inference workflows")
+    
+    # 🚀 THIS IS THE MISSING LINE:
+    HUGGINGFACEHUB_API_TOKEN: str = Field(..., description="Hugging Face API token for cloud embeddings")
 
     # --- Local Models Configuration ---
     EMBEDDING_MODEL_NAME: str = Field(default="sentence-transformers/all-MiniLM-L6-v2")
