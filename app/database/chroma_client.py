@@ -3,7 +3,7 @@ import threading
 from typing import List, Dict, Any, Optional
 import chromadb
 from chromadb.config import Settings as ChromaSettings
-from langchain_huggingface import HuggingFaceInferenceAPIEmbeddings
+from langchain_huggingface import HuggingFaceEndpointEmbeddings # <-- Updated Import
 from app.config import settings
 from app.logger import setup_logger
 
@@ -46,9 +46,10 @@ class ChromaManager:
                 logger.warning("HUGGINGFACEHUB_API_TOKEN is missing! Embeddings will fail.")
             
             # Initialize API Embeddings once (Zero RAM usage on Render)
-            self.embedding_function = HuggingFaceInferenceAPIEmbeddings(
-                api_key=hf_token,
-                model_name="sentence-transformers/all-MiniLM-L6-v2"
+            # Updated parameters for the newest version of langchain-huggingface
+            self.embedding_function = HuggingFaceEndpointEmbeddings(
+                model="sentence-transformers/all-MiniLM-L6-v2",
+                huggingfacehub_api_token=hf_token
             )
             
             self._write_lock = threading.Lock()
